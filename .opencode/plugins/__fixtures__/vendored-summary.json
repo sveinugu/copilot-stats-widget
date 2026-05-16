@@ -1,0 +1,10 @@
+{
+  "requests_count": 3,
+  "tokens": 150,
+  "premium_requests": 2,
+  "premium_quota": 10,
+  "premium_usage_percent": 20,
+  "top_model": "gpt-5-mini",
+  "last_request_iso": "2026-05-16T00:00:00Z",
+  "per_agent": [{ "agent": "AgentA", "requests": 2, "premium_requests": 1 }]
+}

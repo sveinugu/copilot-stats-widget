@@ -13,11 +13,12 @@ jobs:
           node-version: '18'
       - name: Install
         run: npm ci
-      - name: Vendor upstream copilot-stats (if missing)
+      - name: Ensure vendored upstream copilot-stats at pinned commit
         run: |
-          if [ ! -d "vendor/copilot-stats" ]; then
-            git clone --depth=1 https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats
-          fi
+          # If the vendor directory is missing or incomplete, clone a fresh copy
+          rm -rf vendor/copilot-stats
+          git clone --depth=1 https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats
+          echo "Pinned upstream commit: $(git -C vendor/copilot-stats rev-parse --short HEAD)"
       - name: Run tests
         run: npm test
       - name: Verify licensing provenance

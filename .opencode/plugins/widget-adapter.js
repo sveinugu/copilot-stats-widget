@@ -1,8 +1,21 @@
-// CommonJS adapter for widget tests — uses upstream 'copilot-stats' package
-const cs = require('copilot-stats')
+// CommonJS adapter for widget tests — uses local adapter at ./copilot-stats
+const cs = require('./copilot-stats')
 
-function registerSidebarFromStore(host, events) {
-  const summary = cs.summarizeEvents ? cs.summarizeEvents(events) : { requests_count: 0, tokens: 0, premium_requests: 0, premium_usage_percent: null, top_model: null, last_request_iso: null, per_agent: [] }
+async function registerSidebarFromStore(host, events) {
+  // Try multiple adapter entry points (upstream may export different names)
+  const getter = cs.getSummary || cs.summary || cs.handler || cs.default || cs.summarizeEvents || cs.summarize
+  let summary
+  try {
+    if (!getter) summary = { requests_count: 0, tokens: 0, premium_requests: 0, premium_usage_percent: null, top_model: null, last_request_iso: null, per_agent: [] }
+    else {
+      // support both sync and async getters
+      summary = getter.length >= 1 ? await getter(events) : await getter()
+    }
+  } catch (e) {
+    // On error, fall back to empty summary but keep the widget available
+    summary = { requests_count: 0, tokens: 0, premium_requests: 0, premium_usage_percent: null, top_model: null, last_request_iso: null, per_agent: [] }
+  }
+
   if (!host.sidebar || !host.sidebar.registerCard) return { registered: false, fallbackCommand: '/copilot-stats' }
 
   const lines = [

@@ -11,13 +11,13 @@ describe('copilot-stats plugin wrapper', () => {
   });
 
   test('adapter maps upstream summarizeEvents to getSummary', async () => {
-    jest.mock('copilot-stats', () => ({ summarizeEvents: async () => ({ requests_count: 1 }) }));
+    jest.mock('copilot-stats', () => ({ summarizeEvents: async () => ({ requests_count: 1 }) }), { virtual: true });
     const plugin = require('./copilot-stats');
     await expect(plugin.getSummary()).resolves.toMatchObject({ requests_count: 1 });
   });
 
   test('adapter supports function default export upstream', async () => {
-    jest.mock('copilot-stats', () => (async () => ({ requests_count: 2 })));
+    jest.mock('copilot-stats', () => (async () => ({ requests_count: 2 })), { virtual: true });
     const plugin = require('./copilot-stats');
     await expect(plugin.getSummary()).resolves.toMatchObject({ requests_count: 2 });
   });
