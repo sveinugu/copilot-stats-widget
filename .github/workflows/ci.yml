@@ -18,7 +18,11 @@ jobs:
           # If the vendor directory is missing or incomplete, clone a fresh copy
           rm -rf vendor/copilot-stats
           git clone --depth=1 https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats
-          echo "Pinned upstream commit: $(git -C vendor/copilot-stats rev-parse --short HEAD)"
+          # Pin to a specific upstream commit to ensure deterministic CI
+          git -C vendor/copilot-stats checkout 1f8b031
+          ACTUAL=$(git -C vendor/copilot-stats rev-parse --short HEAD)
+          echo "Pinned upstream commit: $ACTUAL"
+          if [ "$ACTUAL" != "1f8b031" ]; then echo "Unexpected upstream commit" && exit 1; fi
       - name: Run tests
         run: npm test
       - name: Verify licensing provenance

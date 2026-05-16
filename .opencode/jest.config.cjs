@@ -1,4 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['**/.opencode/plugins/*.test.js', '**/tests/integration/**/*.test.js'],
+  // Ensure tests are discovered correctly from repo root
+  rootDir: '..',
+  testMatch: ['**/.opencode/plugins/*.test.js', '<rootDir>/tests/integration/**/*.test.js'],
 }
