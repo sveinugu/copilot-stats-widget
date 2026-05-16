@@ -18,7 +18,9 @@ jobs:
         # Approach: clone and then fetch the specific commit depth=1 to guarantee the SHA is available,
         # then check it out. This avoids relying on the remote branch tip to contain the pinned SHA.
         run: |
+          # Ensure a clean vendor directory to avoid CI flakes from partial/dirty clones
           rm -rf vendor/copilot-stats
+          mkdir -p vendor
           git clone https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats
           # Fetch only the exact commit we need to keep network transfer small and deterministic
           git -C vendor/copilot-stats fetch --depth=1 origin 1f8b031

@@ -1,5 +1,6 @@
 node_modules/
 vendor/
+!vendor/README.md
 .idea/
 dist/
 *.log
