@@ -23,11 +23,12 @@ jobs:
           mkdir -p vendor
           git clone https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats
           # Fetch only the exact commit we need to keep network transfer small and deterministic
-          git -C vendor/copilot-stats fetch --depth=1 origin 1f8b031
-          git -C vendor/copilot-stats checkout 1f8b031
-          ACTUAL=$(git -C vendor/copilot-stats rev-parse --short HEAD)
+          # Use full commit SHA to avoid ambiguity
+          git -C vendor/copilot-stats fetch --depth=1 origin 1f8b031ca253260b3d2e99199c260bc097b8c88a
+          git -C vendor/copilot-stats checkout 1f8b031ca253260b3d2e99199c260bc097b8c88a
+          ACTUAL=$(git -C vendor/copilot-stats rev-parse HEAD)
           echo "Pinned upstream commit: $ACTUAL"
-          if [ "$ACTUAL" != "1f8b031" ]; then echo "Unexpected upstream commit" && exit 1; fi
+          if [ "$ACTUAL" != "1f8b031ca253260b3d2e99199c260bc097b8c88a" ]; then echo "Unexpected upstream commit" && exit 1; fi
       - name: Run tests
         run: npm test
       - name: Verify licensing provenance
