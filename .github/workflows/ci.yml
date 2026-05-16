@@ -12,6 +12,16 @@ jobs:
         with:
           node-version: '18'
       - name: Install
-        run: npm install
+        run: |
+          npm ci || npm install
+      - name: Vendor upstream copilot-stats
+        run: |
+          # If vendor/ directory doesn't exist (e.g., fresh checkout), fetch upstream into vendor/
+          if [ ! -d "vendor/copilot-stats" ]; then
+            git clone --depth=1 https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats || true
+          fi
       - name: Run tests
         run: npm test
+      - name: Verify licensing provenance
+        run: |
+          echo "Upstream copilot-stats LICENSE:" && if [ -f vendor/copilot-stats/LICENSE ]; then sed -n '1,20p' vendor/copilot-stats/LICENSE; else echo "(not vendored)"; fi
