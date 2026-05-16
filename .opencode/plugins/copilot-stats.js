@@ -20,9 +20,11 @@ try {
   };
 }
 
-// Ensure compatibility aliases for consumers that expect different names
-const exportsObj = Object.assign({}, upstream);
+// Ensure compatibility aliases for consumers that expect different names.
+// If upstream is a function (module.exports = fn), normalize accordingly.
+const exportsObj = (typeof upstream === 'function') ? { default: upstream } : Object.assign({}, upstream);
 if (!exportsObj.getSummary) {
+  if (typeof upstream === 'function') exportsObj.getSummary = upstream;
   if (typeof upstream.summarizeEvents === 'function') exportsObj.getSummary = upstream.summarizeEvents;
   if (typeof upstream.summarize === 'function') exportsObj.getSummary = upstream.summarize;
 }
