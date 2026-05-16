@@ -1,0 +1,13 @@
+{
+  "name": "copilot-stats-widget",
+  "version": "0.0.0",
+  "description": "OpenCode right-sidebar Copilot Stats widget adapter",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --config .opencode/jest.config.cjs --runInBand"
+  },
+  "dependencies": {
+    "copilot-stats": "git+https://github.com/nilcaream/copilot-stats.git#main"
+  },
+  "license": "Apache-2.0"
+}
