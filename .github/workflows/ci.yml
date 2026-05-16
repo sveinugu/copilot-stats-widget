@@ -12,6 +12,27 @@ jobs:
         with:
           node-version: '18'
       - name: Install
-        run: npm install
+        run: npm ci
+      - name: Ensure vendored upstream copilot-stats at pinned commit
+        run: |
+          PINNED=1f8b031ca253260b3d2e99199c260bc097b8c88a
+          if [ -f "vendor/copilot-stats/plugins/copilot-stats.ts" ]; then
+            echo "Using committed vendor/copilot-stats files (no network fetch)."
+            ls -la vendor/copilot-stats | sed -n '1,10p'
+          else
+            echo "No committed vendor present — fetching pinned upstream commit into vendor/"
+            rm -rf vendor/copilot-stats
+            mkdir -p vendor
+            git clone https://github.com/nilcaream/copilot-stats.git vendor/copilot-stats
+            git -C vendor/copilot-stats fetch --depth=1 origin $PINNED
+            git -C vendor/copilot-stats checkout $PINNED
+            ACTUAL=$(git -C vendor/copilot-stats rev-parse HEAD)
+            echo "Pinned upstream commit: $ACTUAL"
+            if [ "$ACTUAL" != "$PINNED" ]; then echo "Unexpected upstream commit" && exit 1; fi
+          fi
       - name: Run tests
         run: npm test
+      - name: Verify licensing provenance
+        run: |
+          test -f vendor/copilot-stats/LICENSE
+          sed -n '1,20p' vendor/copilot-stats/LICENSE

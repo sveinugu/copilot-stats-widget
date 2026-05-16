@@ -1,5 +1,16 @@
+.idea/
 node_modules/
-dist/
-.env
+vendor/
+# Allow vendor README and LICENSE to be tracked for provenance
+!vendor/README.md
+!vendor/copilot-stats/LICENSE
 .vscode/
+dist/
 *.log
+coverage/
+.idea/
+dist/
+*.log
+coverage/
+# package-lock.json is tracked for deterministic CI installs
+!package-lock.json

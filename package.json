@@ -6,8 +6,9 @@
   "scripts": {
     "test": "jest --config .opencode/jest.config.cjs --runInBand"
   },
-  "dependencies": {
-    "copilot-stats": "git+https://github.com/nilcaream/copilot-stats.git#main"
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "node-fetch": "^2.6.7"
   },
   "license": "Apache-2.0"
 }
