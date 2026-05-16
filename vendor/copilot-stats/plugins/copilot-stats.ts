@@ -198,36 +198,43 @@ const originalFetch = globalThis.fetch
 
 if (originalFetch) {
     globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-        try {
-            const start = Date.now()
-            const request = new Request(input as any, init as any)
-            const info = await extractRequestInfo(request)
-            const res = await originalFetch(input, init)
-            const ms = Date.now() - start
-            record(info.model, request.headers.get("x-initiator") || "user", info.type)
-            logStats(info.model, request.headers.get("x-initiator") || "user", info.type, res.status, ms)
-            return res
-        } catch (e) {
-            // don't break the host app
-            try { return originalFetch(input, init) } catch (e2) { throw e2 }
+        const request = new Request(input, init)
+        const headers = new Headers(request.headers)
+        const initiator = headers.get("x-initiator")
+
+        if (request.url.includes("githubcopilot.com") || request.url.includes("github.com") || request.url.includes("ghe.com")) {
+            if (initiator) {
+                const info = await extractRequestInfo(request)
+                const startTime = Date.now()
+                const resp = await originalFetch(new Request(request, {headers}))
+                const latencyMs = Date.now() - startTime
+                record(info.model, initiator, info.type)
+                logStats(info.model, initiator, info.type, resp.status, latencyMs)
+                return resp
+            } else {
+                logError("Missing x-initiator header")
+            }
         }
+
+        return originalFetch(new Request(request, {headers}))
+    }
+} else {
+    logError("Unable to override fetch")
+}
+
+// --- Plugin export ---
+
+export default async ({ client }: { client: any }) => {
+    logError = makeLogError(client)
+    return {
+        tool: {
+            copilot_stats: {
+                description: "Show GitHub Copilot premium request usage for this OpenCode instance",
+                args: {},
+                async execute() {
+                    return renderTable()
+                },
+            },
+        },
     }
 }
-
-// Public API: simple summary generator
-export async function summarizeEvents() {
-    const keys = Object.keys(metrics)
-    const requests_count = keys.reduce((acc, k) => acc + metrics[k].count, 0)
-    const tokens = 0
-    const premium_requests = keys.reduce((acc, k) => acc + (metrics[k].count * (metrics[k].cost || 0)), 0)
-    const total = premium_requests
-    const per_agent = [] as any[]
-    const top_model = keys.length ? keys[0].split('|')[0] : null
-    const last_request_iso = null
-    const premium_quota = null
-    const premium_usage_percent = null
-
-    return { requests_count, tokens, premium_requests, premium_quota, premium_usage_percent, top_model, last_request_iso, per_agent }
-}
-
-export default summarizeEvents
